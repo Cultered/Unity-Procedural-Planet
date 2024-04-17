@@ -5,7 +5,8 @@ using System.Linq;
 using UnityEditor.PackageManager;
 using UnityEditor.UIElements;
 using UnityEngine;
-
+[RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(MeshFilter))]
 class triangle
 {
     Vector3 p1;
@@ -21,6 +22,7 @@ class triangle
 [ExecuteInEditMode]
 public class proceduralPlanet : MonoBehaviour
 {
+
     [SerializeField]
     Gradient planetColors;
     [SerializeField]
@@ -38,7 +40,7 @@ public class proceduralPlanet : MonoBehaviour
     [SerializeField]
     float mountainDisplacement = 1;
     [SerializeField]
-    float moutainRoughness = 1;
+    int moutainRoughness = 1;
     [SerializeField]
     int radius = 1;
     [SerializeField]
@@ -56,7 +58,7 @@ public class proceduralPlanet : MonoBehaviour
     void Start()
     {
         //!!!PROTECTION FROM TOO MANY TRIANGLES!!!
-        if (subdivisions > 150) { subdivisions = 150; Debug.LogError("Too many triangles, changed subdivisions to 150 for consistency"); }
+        //if (subdivisions > 150) { subdivisions = 150; Debug.LogError("Too many triangles, changed subdivisions to 150 for consistency"); }
 
     }
     int findVector3InArray(Vector3[] a, Vector3 element)
@@ -169,22 +171,6 @@ public class proceduralPlanet : MonoBehaviour
 
         vertices = vertices1.ToArray();
         triangles = triangles1.ToArray();
-
-        //removing all repeating points
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            int a = findVector3InArray(vertices, vertices[i]);
-            if (i != a)
-            {
-                for (int j = 0; j < triangles.Length; j++)
-                {
-                    if (triangles[j] == i)
-                    {
-                        triangles[j] = a;
-                    }
-                }
-            }
-        }
         //creating hills and seas
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -240,7 +226,7 @@ public class proceduralPlanet : MonoBehaviour
             colors[i] = planetColors.Evaluate(vertices[i].magnitude / 2 / radius);
         }
 
-
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         // assign the array of colors to the Mesh.
